@@ -1,7 +1,8 @@
 Package.describe({
     name: 'alino:mongo2es',
-    summary: 'create hooks for mongo collection to sync with elastic search',
-    version: '0.0.2'
+    summary: 'create hooks for MongoDB collection to sync with ElasticSearch',
+    version: '0.0.3',
+    git: 'https://github.com/Alino/alino-mongo2es.git'
 });
 
 Package.onUse(function (api) {
@@ -12,7 +13,7 @@ Package.onUse(function (api) {
         "http@1.1.1",
         "coffeescript",
         "underscore",
-        "alino:logit@0.0.2"
+        "alino:logit@0.0.3"
     ];
 
     api.use(packages);
@@ -34,7 +35,7 @@ Package.onTest(function(api) {
         "http@1.1.1",
         'coffeescript',
         'underscore',
-        "alino:logit@0.0.2",
+        "alino:logit@0.0.3",
         'sanjo:jasmine@0.20.2'
     ]);
     api.addFiles([
