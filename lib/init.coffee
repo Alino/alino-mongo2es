@@ -1,7 +1,9 @@
 if Meteor.isServer
   Meteor.startup ->
     if not process.env.elasticsearchHost? and not Meteor.settings.elasticsearchHost?
-      throw log.error("elasticsearch host was not set, you must set it up!!!")
+      error = "elasticsearch host was not set, you must set it up!!!"
+      log.error(error)
+      throw new Meteor.Error(error)
     else
       Meteor.settings.elasticsearchHost = process.env.elasticsearchHost or Meteor.settings.elasticsearchHost
 
@@ -15,4 +17,6 @@ if Meteor.isServer
   Meteor.startup ->
     ESresponse = Mongo2ES::getStatusForES({ host: Meteor.settings.elasticsearchHost })
     if ESresponse.statusCode isnt 200
-      throw log.error(new Meteor.Error("bad ES response, exiting...", null, JSON.stringify(ESresponse)))
+      error = "bad ES response, exiting..."
+      throw new Meteor.Error(error, null, ESresponse)
+      log.error(error)

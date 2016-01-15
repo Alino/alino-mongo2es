@@ -12,7 +12,7 @@ describe 'Mongo2ES', ->
   testCollection11 = new Mongo.Collection('testCollection11')
   testCollection12 = new Mongo.Collection('testCollection12')
 
-  ESdefault = host: "http://192.168.59.103:9500"
+  ESdefault = host: Meteor.settings.elasticsearchHost
   optionsDefault =
     collectionName: testCollection1
     ES:

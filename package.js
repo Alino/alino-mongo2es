@@ -13,7 +13,7 @@ Package.onUse(function (api) {
         "http@1.1.1",
         "coffeescript",
         "underscore",
-        "alino:logit@0.0.3"
+        "alino:logit@0.0.4"
     ];
 
     api.use(packages);
@@ -40,6 +40,7 @@ Package.onTest(function(api) {
     ]);
     api.addFiles([
         "lib/mongo2es.coffee",
+        "lib/init.coffee",
         'tests/test.coffee'
     ], 'server');
 });
