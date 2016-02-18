@@ -43,8 +43,7 @@ class @Mongo2ES
     url = "#{ES.host}/#{ES.index}/#{ES.type}/#{newDocument._id}"
     console.log url
     console.log newDocument
-    query =
-      newDocument
+    query = _.omit(newDocument, '_id')
     try
       response = HTTP.post(url, { data: query })
     catch e
@@ -58,8 +57,7 @@ class @Mongo2ES
       @removeESdocument(ES, oldDocument._id)
     log.info "updating doc #{newDocument._id} to ES"
     url = "#{ES.host}/#{ES.index}/#{ES.type}/#{newDocument._id}"
-    query =
-      newDocument
+    query = _.omit(newDocument, '_id')
     try
       response = HTTP.put(url, { data: query })
     catch e
