@@ -57,7 +57,7 @@ describe 'Mongo2ES', ->
       x = new Mongo2ES(optionsDefault)
       response = x.getStatusForES(optionsDefault.ES)
       expect(response.statusCode).toBeDefined
-      expect(response.statusCode).toEqual 200
+      expect(response.statusCode).toBe 200
 
     it 'should return an error if ES host unreachable', ->
       options =
@@ -83,7 +83,7 @@ describe 'Mongo2ES', ->
             result = HTTP.get(url)
             expect(result).toBeDefined()
             expect(result.data.found).toBe(true)
-            expect(result.data._source).toEqual newDocument
+            expect(result.data._source).toEqual _.omit(newDocument, '_id')
           catch e
             console.error e
             expect(e).toBeUndefined()
@@ -112,7 +112,7 @@ describe 'Mongo2ES', ->
             expect(result.data.found).toBe(true)
             transformedDocument = newDocument
             transformedDocument.trans_query = 'jebem_TRANSFORMED'
-            expect(result.data._source).toEqual transformedDocument
+            expect(result.data._source).toEqual _.omit(transformedDocument, '_id')
           catch e
             console.error e
             expect(e).toBeUndefined()
@@ -136,7 +136,7 @@ describe 'Mongo2ES', ->
             result = HTTP.get(url)
             expect(result).toBeDefined()
             expect(result.data.found).toBe(true)
-            expect(result.data._source).toEqual newDocument
+            expect(result.data._source).toEqual _.omit(newDocument, '_id')
           catch e
             console.error e
             expect(e).toBeUndefined()
@@ -179,7 +179,7 @@ describe 'Mongo2ES', ->
           try
             result = HTTP.get(url)
             expect(result).toBeDefined()
-            expect(result.data._source).toEqual newDocument
+            expect(result.data._source).toEqual _.omit(newDocument, '_id')
           catch e
             expect(e).toBeUndefined()
           finally
