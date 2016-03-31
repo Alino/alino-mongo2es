@@ -42,11 +42,9 @@ class @Mongo2ES
   addToES: (collectionName, ES, newDocument) ->
     log.info("adding doc #{newDocument._id} to ES")
     url = "#{ES.host}/#{ES.index}/#{ES.type}/#{newDocument._id}"
-    query =
-      newDocument
-    if @verbose
-      console.log url
-      console.log query
+    console.log url
+    console.log newDocument
+    query = _.omit(newDocument, '_id')
     try
       response = HTTP.post(url, { data: query })
     catch e
@@ -60,11 +58,7 @@ class @Mongo2ES
       @removeESdocument(ES, oldDocument._id)
     log.info "updating doc #{newDocument._id} to ES"
     url = "#{ES.host}/#{ES.index}/#{ES.type}/#{newDocument._id}"
-    query =
-      newDocument
-    if @verbose
-      console.log url
-      console.log query
+    query = _.omit(newDocument, '_id')
     try
       response = HTTP.put(url, { data: query })
     catch e
@@ -75,8 +69,6 @@ class @Mongo2ES
   removeESdocument: (ES, documentID) ->
     log.info "removing doc #{documentID} from ES"
     url = "#{ES.host}/#{ES.index}/#{ES.type}/#{documentID}"
-    if @verbose
-      console.log url
     try
       response = HTTP.del(url)
     catch e
