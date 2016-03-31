@@ -30,6 +30,7 @@ class @Mongo2ES
     self.watcher
 
   getStatusForES: (ES) ->
+    console.log "checking connectivity with ElasticSearch on #{ES.host}"
     try
       response = HTTP.get(ES.host, { data: '/' })
     catch e

@@ -8,7 +8,7 @@ if Meteor.isServer
       Meteor.settings.elasticsearchHost = process.env.elasticsearchHost or Meteor.settings.elasticsearchHost
 
     if not process.env.logitHost? and not Meteor.settings.logit?
-      log.warn "logit host wasn't set. Logging into console only"
+      log.warn "warning: logit host wasn't set. Logging into console only"
     else
       Meteor.settings.logit =
         host: process.env.logitHost or Meteor.settings.logit.host
@@ -20,3 +20,5 @@ if Meteor.isServer
       error = "bad ES response, exiting..."
       throw new Meteor.Error(error, null, ESresponse)
       log.error(error)
+    else
+      log.info 'connection with ElasticSearch successfull'
