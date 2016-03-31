@@ -43,8 +43,7 @@ class @Mongo2ES
   addToES: (collectionName, ES, newDocument) ->
     log.info("adding doc #{newDocument._id} to ES")
     url = "#{ES.host}/#{ES.index}/#{ES.type}/#{newDocument._id}"
-    query =
-      newDocument
+    query = _.omit(newDocument, '_id')
     if @verbose
       console.log url
       console.log query
@@ -61,8 +60,7 @@ class @Mongo2ES
       @removeESdocument(ES, oldDocument._id)
     log.info "updating doc #{newDocument._id} to ES"
     url = "#{ES.host}/#{ES.index}/#{ES.type}/#{newDocument._id}"
-    query =
-      newDocument
+    query = _.omit(newDocument, '_id')
     if @verbose
       console.log url
       console.log query
