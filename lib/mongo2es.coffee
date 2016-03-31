@@ -31,6 +31,7 @@ class @Mongo2ES
     self.watcher
 
   getStatusForES: (ES) ->
+    console.log "checking connectivity with ElasticSearch on #{ES.host}"
     try
       response = HTTP.get(ES.host, { data: '/' })
     catch e
@@ -42,9 +43,10 @@ class @Mongo2ES
   addToES: (collectionName, ES, newDocument) ->
     log.info("adding doc #{newDocument._id} to ES")
     url = "#{ES.host}/#{ES.index}/#{ES.type}/#{newDocument._id}"
-    console.log url
-    console.log newDocument
     query = _.omit(newDocument, '_id')
+    if @verbose
+      console.log url
+      console.log query
     try
       response = HTTP.post(url, { data: query })
     catch e
@@ -59,6 +61,9 @@ class @Mongo2ES
     log.info "updating doc #{newDocument._id} to ES"
     url = "#{ES.host}/#{ES.index}/#{ES.type}/#{newDocument._id}"
     query = _.omit(newDocument, '_id')
+    if @verbose
+      console.log url
+      console.log query
     try
       response = HTTP.put(url, { data: query })
     catch e
@@ -69,6 +74,8 @@ class @Mongo2ES
   removeESdocument: (ES, documentID) ->
     log.info "removing doc #{documentID} from ES"
     url = "#{ES.host}/#{ES.index}/#{ES.type}/#{documentID}"
+    if @verbose
+      console.log url
     try
       response = HTTP.del(url)
     catch e
