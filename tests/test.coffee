@@ -9,6 +9,9 @@ describe 'Mongo2ES', ->
   testCollection9 = new Mongo.Collection('testCollection9')
   testCollection11 = new Mongo.Collection('testCollection11')
   testCollection12 = new Mongo.Collection('testCollection12')
+  testCollection13 = new Mongo.Collection('testCollection13')
+  testCollection14 = new Mongo.Collection('testCollection14')
+  testCollection15 = new Mongo.Collection('testCollection15')
 
   ESdefault = host: Meteor.settings.elasticsearchHost
   optionsDefault =
@@ -30,6 +33,9 @@ describe 'Mongo2ES', ->
     testCollection9.remove({})
     testCollection11.remove({})
     testCollection12.remove({})
+    testCollection13.remove({})
+    testCollection14.remove({})
+    testCollection15.remove({})
 
   beforeEach ->
     clearDB()
@@ -121,6 +127,25 @@ describe 'Mongo2ES', ->
       )
       testCollection7.insert({ _id: 'transexual pojebany', query: 'jebem' })
 
+    it 'should skip creating the document in ES if transform function returns false', (done) ->
+      options = optionsDefault
+      options.collectionName = testCollection13
+      transform = (doc) -> return false
+      x = new Mongo2ES(options, transform)
+      testCollection13.find().observe(
+        added: (newDocument) ->
+          expect(x.transform).toBeDefined()
+          url = "#{x.options.ES.host}/#{x.options.ES.index}/#{x.options.ES.type}/#{encodeURI('neprujdesdal')}"
+          try
+            result = HTTP.get(url)
+            expect(result).toBeUndefined()
+          catch e
+            expect(e).toBeDefined()
+          finally
+            done()
+      )
+      testCollection13.insert({ _id: 'neprujdesdal', query: 'gandalf huli travu' })
+
     it 'should copy already existing mongo data to ES if third parameter is true', (done) ->
       testCollection11.insert({ _id: 'toto tu uz bolo', query: 'jebem' })
       options = optionsDefault
@@ -187,6 +212,31 @@ describe 'Mongo2ES', ->
       )
       testCollection6.update({ _id: "42" }, { $set: { query: 'nejebem' } })
 
+    it 'should skip updating the document in ES if transform function returns false', (done) ->
+      options = optionsDefault
+      options.collectionName = testCollection14
+      testCollection14.insert({ _id: 'neprujdesdal_update', query: 'gandalf huli kravu' })
+      doc = testCollection14.findOne({ _id: 'neprujdesdal_update' })
+      Mongo2ES::addToES(testCollection14, options.ES, doc)
+      transform = (doc) -> return false
+      x = new Mongo2ES(options, transform)
+      testCollection14.find().observe(
+        changed: (newDocument, oldDocument) ->
+          expect(x.transform).toBeDefined()
+          url = "#{x.options.ES.host}/#{x.options.ES.index}/#{x.options.ES.type}/#{encodeURI('neprujdesdal_update')}"
+          try
+            result = HTTP.get(url)
+            expect(oldDocument.query).toBe('gandalf huli kravu')
+            expect(newDocument.query).toBe('gandalf huli travu')
+            expect(result).toBeDefined()
+            expect(result.data._source.query).toBe('gandalf huli kravu')
+          catch e
+            expect(e).toBeUndefined()
+          finally
+            done()
+      )
+      testCollection14.update({ _id: 'neprujdesdal_update' }, { $set: { query: 'gandalf huli travu' } })
+
 
   describe 'removeESdocument', ->
     it 'should remove document from ES', (done) ->
@@ -207,6 +257,29 @@ describe 'Mongo2ES', ->
             done()
       )
       testCollection4.remove({ _id: 'jebem ja tvojho boha', query: 'jebem' })
+
+    it 'should not remove document from ES if transform function returns false', (done) ->
+      options = optionsDefault
+      options.collectionName = testCollection15
+      transform = (doc) -> return false
+      x = new Mongo2ES(options, transform)
+      testCollection15.insert({ _id: 'jebem ja tvojho boha alaha', query: 'jebem' })
+      doc = testCollection15.findOne({ _id: 'jebem ja tvojho boha alaha' })
+      Mongo2ES::addToES(testCollection15, options.ES, doc)
+      testCollection15.find().observe(
+        removed: (oldDocument) ->
+          expect(oldDocument._id).toBe 'jebem ja tvojho boha alaha'
+          url = "#{x.options.ES.host}/#{x.options.ES.index}/#{x.options.ES.type}/#{encodeURI('jebem ja tvojho boha alaha')}"
+          try
+            result = HTTP.get(url)
+            expect(result).toBeDefined()
+            expect(result.data._id).toBe('jebem ja tvojho boha alaha')
+          catch e
+            expect(e).toBeUndefined()
+          finally
+            done()
+      )
+      testCollection15.remove({ _id: 'jebem ja tvojho boha alaha', query: 'jebem' })
 
   describe 'stopWatch', ->
     it 'should stop watching the collection', (done) ->

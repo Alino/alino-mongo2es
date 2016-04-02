@@ -9,14 +9,20 @@ class @Mongo2ES
     self.watcher = self.options.collectionName.find().observe(
       added: (newDocument) ->
         if self.copyAlreadyExistingData
-          newDocument = self.transform(newDocument) if self.transform?
+          if self.transform? and _.isFunction(self.transform)
+            if self.transform(newDocument) is false then return
+            else newDocument = self.transform(newDocument)
           self.addToES(self.options.collectionName, self.options.ES, newDocument)
 
       changed: (newDocument, oldDocument) ->
-        newDocument = self.transform(newDocument) if self.transform?
+        if self.transform? and _.isFunction(self.transform)
+          if self.transform(newDocument) is false then return
+          else newDocument = self.transform(newDocument)
         self.updateToES(self.options.collectionName, self.options.ES, newDocument, oldDocument)
 
       removed: (oldDocument) ->
+        if self.transform? and _.isFunction(self.transform)
+          if self.transform() is false then return
         self.removeESdocument(self.options.ES, oldDocument._id)
     )
     self.copyAlreadyExistingData = true

@@ -1,7 +1,7 @@
 Package.describe({
     name: 'alino:mongo2es',
     summary: 'create hooks for MongoDB collection to sync with ElasticSearch',
-    version: '0.0.5',
+    version: '0.0.6',
     git: 'https://github.com/Alino/alino-mongo2es.git'
 });
 
