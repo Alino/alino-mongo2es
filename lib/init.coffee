@@ -16,8 +16,7 @@ if Meteor.isServer
 
   Meteor.startup ->
     options = { host: Meteor.settings.elasticsearchHost }
-    if Meteor.settings.elasticsearchAuth or process.env.elasticsearchAuth 
-      options.auth = Meteor.settings.elasticsearchAuth ? Meteor.settings.elasticsearchAuth : process.env.elasticsearchAuth
+    options.auth = Mongo2ES::getESAuth()
     ESresponse = Mongo2ES::getStatusForES(options)
     if ESresponse.statusCode isnt 200
       error = "bad ES response, exiting..."
