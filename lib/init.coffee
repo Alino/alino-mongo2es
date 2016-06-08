@@ -15,10 +15,13 @@ if Meteor.isServer
         port: process.env.logitPort or Meteor.settings.logit.port
 
   Meteor.startup ->
-    ESresponse = Mongo2ES::getStatusForES({ host: Meteor.settings.elasticsearchHost })
+    options = { host: Meteor.settings.elasticsearchHost }
+    if Meteor.settings.elasticsearchAuth or process.env.elasticsearchAuth 
+      options.auth = Meteor.settings.elasticsearchAuth ? Meteor.settings.elasticsearchAuth : process.env.elasticsearchAuth
+    ESresponse = Mongo2ES::getStatusForES(options)
     if ESresponse.statusCode isnt 200
       error = "bad ES response, exiting..."
       throw new Meteor.Error(error, null, ESresponse)
       log.error(error)
     else
-      log.info 'connection with ElasticSearch successfull'
+      log.info 'connection with ElasticSearch successful'

@@ -12,17 +12,23 @@ class @Mongo2ES
           if self.transform? and _.isFunction(self.transform)
             if self.transform(newDocument) is false then return
             else newDocument = self.transform(newDocument)
+          if Meteor.settings.elasticsearchAuth or process.env.elasticsearchAuth
+            self.options.ES.auth = Meteor.settings.elasticsearchAuth ? Meteor.settings.elasticsearchAuth : process.env.elasticsearchAuth
           self.addToES(self.options.collectionName, self.options.ES, newDocument)
 
       changed: (newDocument, oldDocument) ->
         if self.transform? and _.isFunction(self.transform)
           if self.transform(newDocument) is false then return
           else newDocument = self.transform(newDocument)
+        if Meteor.settings.elasticsearchAuth or process.env.elasticsearchAuth
+          self.options.ES.auth = Meteor.settings.elasticsearchAuth ? Meteor.settings.elasticsearchAuth : process.env.elasticsearchAuth
         self.updateToES(self.options.collectionName, self.options.ES, newDocument, oldDocument)
 
       removed: (oldDocument) ->
         if self.transform? and _.isFunction(self.transform)
           if self.transform() is false then return
+        if Meteor.settings.elasticsearchAuth or process.env.elasticsearchAuth
+          self.options.ES.auth = Meteor.settings.elasticsearchAuth ? Meteor.settings.elasticsearchAuth : process.env.elasticsearchAuth
         self.removeESdocument(self.options.ES, oldDocument._id)
     )
     self.copyAlreadyExistingData = true
@@ -44,7 +50,7 @@ class @Mongo2ES
       response = HTTP.get(ES.host, options)
     catch e
       log.error(e)
-      return error = e
+      return e
     return response
 
   addToES: (collectionName, ES, newDocument) ->
