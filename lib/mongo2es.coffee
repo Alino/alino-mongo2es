@@ -38,23 +38,26 @@ class @Mongo2ES
 
   getStatusForES: (ES) ->
     console.log "checking connectivity with ElasticSearch on #{ES.host}"
+    options = { data: '/' }
+    if ES.auth then options.auth = ES.auth
     try
-      response = HTTP.get(ES.host, { data: '/' })
+      response = HTTP.get(ES.host, options)
     catch e
       log.error(e)
-      return error =
-        e
+      return error = e
     return response
 
   addToES: (collectionName, ES, newDocument) ->
     log.info("adding doc #{newDocument._id} to ES")
     url = "#{ES.host}/#{ES.index}/#{ES.type}/#{newDocument._id}"
     query = _.omit(newDocument, '_id')
+    options = { data: query }
+    if ES.auth then options.auth = ES.auth
     if @verbose
       console.log url
       console.log query
     try
-      response = HTTP.post(url, { data: query })
+      response = HTTP.post(url, options)
     catch e
       log.error(e)
       return e
@@ -67,11 +70,13 @@ class @Mongo2ES
     log.info "updating doc #{newDocument._id} to ES"
     url = "#{ES.host}/#{ES.index}/#{ES.type}/#{newDocument._id}"
     query = _.omit(newDocument, '_id')
+    options = { data: query }
+    if ES.auth then options.auth = ES.auth
     if @verbose
       console.log url
       console.log query
     try
-      response = HTTP.put(url, { data: query })
+      response = HTTP.post(url, options)
     catch e
       log.error(e)
       return e
@@ -80,10 +85,12 @@ class @Mongo2ES
   removeESdocument: (ES, documentID) ->
     log.info "removing doc #{documentID} from ES"
     url = "#{ES.host}/#{ES.index}/#{ES.type}/#{documentID}"
+    options = {}
+    if ES.auth then options.auth = ES.auth
     if @verbose
       console.log url
     try
-      response = HTTP.del(url)
+      response = HTTP.del(url, options)
     catch e
       log.error(e)
       return e
