@@ -12,26 +12,26 @@ class @Mongo2ES
           if self.transform? and _.isFunction(self.transform)
             if self.transform(newDocument) is false then return
             else newDocument = self.transform(newDocument)
-          if Meteor.settings.elasticsearchAuth or process.env.elasticsearchAuth
-            self.options.ES.auth = Meteor.settings.elasticsearchAuth ? Meteor.settings.elasticsearchAuth : process.env.elasticsearchAuth
+          self.options.ES.auth = getESAuth()
           self.addToES(self.options.collectionName, self.options.ES, newDocument)
 
       changed: (newDocument, oldDocument) ->
         if self.transform? and _.isFunction(self.transform)
           if self.transform(newDocument) is false then return
           else newDocument = self.transform(newDocument)
-        if Meteor.settings.elasticsearchAuth or process.env.elasticsearchAuth
-          self.options.ES.auth = Meteor.settings.elasticsearchAuth ? Meteor.settings.elasticsearchAuth : process.env.elasticsearchAuth
+        self.options.ES.auth = getESAuth()
         self.updateToES(self.options.collectionName, self.options.ES, newDocument, oldDocument)
 
       removed: (oldDocument) ->
         if self.transform? and _.isFunction(self.transform)
           if self.transform() is false then return
-        if Meteor.settings.elasticsearchAuth or process.env.elasticsearchAuth
-          self.options.ES.auth = Meteor.settings.elasticsearchAuth ? Meteor.settings.elasticsearchAuth : process.env.elasticsearchAuth
+        self.options.ES.auth = getESAuth()
         self.removeESdocument(self.options.ES, oldDocument._id)
     )
     self.copyAlreadyExistingData = true
+
+  getESAuth: ->
+    return if Meteor.settings.elasticsearchAuth then Meteor.settings.elasticsearchAuth else process.env.elasticsearchAuth
 
   getCollection: (collectionName) ->
     if _.isString(collectionName) then return new Mongo.Collection collectionName
