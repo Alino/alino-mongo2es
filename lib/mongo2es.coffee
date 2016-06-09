@@ -12,20 +12,26 @@ class @Mongo2ES
           if self.transform? and _.isFunction(self.transform)
             if self.transform(newDocument) is false then return
             else newDocument = self.transform(newDocument)
+          self.options.ES.auth = getESAuth()
           self.addToES(self.options.collectionName, self.options.ES, newDocument)
 
       changed: (newDocument, oldDocument) ->
         if self.transform? and _.isFunction(self.transform)
           if self.transform(newDocument) is false then return
           else newDocument = self.transform(newDocument)
+        self.options.ES.auth = getESAuth()
         self.updateToES(self.options.collectionName, self.options.ES, newDocument, oldDocument)
 
       removed: (oldDocument) ->
         if self.transform? and _.isFunction(self.transform)
           if self.transform() is false then return
+        self.options.ES.auth = getESAuth()
         self.removeESdocument(self.options.ES, oldDocument._id)
     )
     self.copyAlreadyExistingData = true
+
+  getESAuth: ->
+    return if Meteor.settings.elasticsearchAuth then Meteor.settings.elasticsearchAuth else process.env.elasticsearchAuth
 
   getCollection: (collectionName) ->
     if _.isString(collectionName) then return new Mongo.Collection collectionName
@@ -38,23 +44,26 @@ class @Mongo2ES
 
   getStatusForES: (ES) ->
     console.log "checking connectivity with ElasticSearch on #{ES.host}"
+    options = { data: '/' }
+    if ES.auth then options.auth = ES.auth
     try
-      response = HTTP.get(ES.host, { data: '/' })
+      response = HTTP.get(ES.host, options)
     catch e
       log.error(e)
-      return error =
-        e
+      return e
     return response
 
   addToES: (collectionName, ES, newDocument) ->
     log.info("adding doc #{newDocument._id} to ES")
     url = "#{ES.host}/#{ES.index}/#{ES.type}/#{newDocument._id}"
     query = _.omit(newDocument, '_id')
+    options = { data: query }
+    if ES.auth then options.auth = ES.auth
     if @verbose
       console.log url
       console.log query
     try
-      response = HTTP.post(url, { data: query })
+      response = HTTP.post(url, options)
     catch e
       log.error(e)
       return e
@@ -67,11 +76,13 @@ class @Mongo2ES
     log.info "updating doc #{newDocument._id} to ES"
     url = "#{ES.host}/#{ES.index}/#{ES.type}/#{newDocument._id}"
     query = _.omit(newDocument, '_id')
+    options = { data: query }
+    if ES.auth then options.auth = ES.auth
     if @verbose
       console.log url
       console.log query
     try
-      response = HTTP.put(url, { data: query })
+      response = HTTP.post(url, options)
     catch e
       log.error(e)
       return e
@@ -80,10 +91,12 @@ class @Mongo2ES
   removeESdocument: (ES, documentID) ->
     log.info "removing doc #{documentID} from ES"
     url = "#{ES.host}/#{ES.index}/#{ES.type}/#{documentID}"
+    options = {}
+    if ES.auth then options.auth = ES.auth
     if @verbose
       console.log url
     try
-      response = HTTP.del(url)
+      response = HTTP.del(url, options)
     catch e
       log.error(e)
       return e
