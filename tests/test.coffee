@@ -83,8 +83,8 @@ describe 'Mongo2ES', ->
       x = new Mongo2ES(options)
       testCollection3.find().observe(
         added: (newDocument) ->
-          expect(newDocument._id).toBe 'tvoj tatko'
-          url = "#{x.options.ES.host}/#{x.options.ES.index}/#{x.options.ES.type}/#{encodeURI('tvoj tatko')}"
+          expect(newDocument._id).toBe 'kvak'
+          url = "#{x.options.ES.host}/#{x.options.ES.index}/#{x.options.ES.type}/#{encodeURI('kvak')}"
           try
             result = HTTP.get(url)
             expect(result).toBeDefined()
@@ -96,7 +96,7 @@ describe 'Mongo2ES', ->
           finally
             done()
       )
-      testCollection3.insert({ _id: 'tvoj tatko', query: 'jebem' })
+      testCollection3.insert({ _id: 'kvak', query: 'mnau' })
 
 
     it 'should save TRANSFORMED document to ES', (done) ->
@@ -109,15 +109,15 @@ describe 'Mongo2ES', ->
       testCollection7.find().observe(
         added: (newDocument) ->
           expect(x.transform).toBeDefined()
-          expect(newDocument._id).toBe 'transexual pojebany'
-          expect(newDocument.query).toBe 'jebem'
-          url = "#{x.options.ES.host}/#{x.options.ES.index}/#{x.options.ES.type}/#{encodeURI('transexual pojebany')}"
+          expect(newDocument._id).toBe 'kvak'
+          expect(newDocument.query).toBe 'mnau'
+          url = "#{x.options.ES.host}/#{x.options.ES.index}/#{x.options.ES.type}/#{encodeURI('kvak')}"
           try
             result = HTTP.get(url)
             expect(result).toBeDefined()
             expect(result.data.found).toBe(true)
             transformedDocument = newDocument
-            transformedDocument.trans_query = 'jebem_TRANSFORMED'
+            transformedDocument.trans_query = 'mnau_TRANSFORMED'
             expect(result.data._source).toEqual _.omit(transformedDocument, '_id')
           catch e
             console.error e
@@ -125,7 +125,7 @@ describe 'Mongo2ES', ->
           finally
             done()
       )
-      testCollection7.insert({ _id: 'transexual pojebany', query: 'jebem' })
+      testCollection7.insert({ _id: 'kvak', query: 'mnau' })
 
     it 'should skip creating the document in ES if transform function returns false', (done) ->
       options = optionsDefault
@@ -147,7 +147,7 @@ describe 'Mongo2ES', ->
       testCollection13.insert({ _id: 'neprujdesdal', query: 'gandalf huli travu' })
 
     it 'should copy already existing mongo data to ES if third parameter is true', (done) ->
-      testCollection11.insert({ _id: 'toto tu uz bolo', query: 'jebem' })
+      testCollection11.insert({ _id: 'toto tu uz bolo', query: 'mnau' })
       options = optionsDefault
       options.collectionName = testCollection11
       x = new Mongo2ES(options, undefined, true)
@@ -170,7 +170,7 @@ describe 'Mongo2ES', ->
       )
 
     it 'should not copy already existing mongo data to ES if third parameter is not defined', (done) ->
-      testCollection12.insert({ _id: 'toto by tam nemalo byt', query: 'jebem' })
+      testCollection12.insert({ _id: 'toto by tam nemalo byt', query: 'kvak' })
       options = optionsDefault
       options.collectionName = testCollection12
       x = new Mongo2ES(options)
@@ -193,13 +193,13 @@ describe 'Mongo2ES', ->
       options = optionsDefault
       options.collectionName = testCollection6
       x = new Mongo2ES(options)
-      testCollection6.insert({ _id: "42", query: 'jebem' })
+      testCollection6.insert({ _id: "42", query: 'kvak' })
       testCollection6.find().observe(
         changed: (newDocument, oldDocument) ->
           expect(newDocument._id).toBe '42'
-          expect(newDocument.query).toBe 'nejebem'
+          expect(newDocument.query).toBe 'mnau'
           expect(oldDocument._id).toBe '42'
-          expect(oldDocument.query).toBe 'jebem'
+          expect(oldDocument.query).toBe 'kvak'
           url = "#{x.options.ES.host}/#{x.options.ES.index}/#{x.options.ES.type}/#{encodeURI('42')}"
           try
             result = HTTP.get(url)
@@ -210,7 +210,7 @@ describe 'Mongo2ES', ->
           finally
             done()
       )
-      testCollection6.update({ _id: "42" }, { $set: { query: 'nejebem' } })
+      testCollection6.update({ _id: "42" }, { $set: { query: 'mnau' } })
 
     it 'should skip updating the document in ES if transform function returns false', (done) ->
       options = optionsDefault
@@ -243,11 +243,11 @@ describe 'Mongo2ES', ->
       options = optionsDefault
       options.collectionName = testCollection4
       x = new Mongo2ES(options)
-      testCollection4.insert({ _id: 'jebem ja tvojho boha', query: 'jebem' })
+      testCollection4.insert({ _id: 'kvak', query: 'mnau' })
       testCollection4.find().observe(
         removed: (oldDocument) ->
-          expect(oldDocument._id).toBe 'jebem ja tvojho boha'
-          url = "#{x.options.ES.host}/#{x.options.ES.index}/#{x.options.ES.type}/#{encodeURI('jebem ja tvojho boha')}"
+          expect(oldDocument._id).toBe 'kvak'
+          url = "#{x.options.ES.host}/#{x.options.ES.index}/#{x.options.ES.type}/#{encodeURI('kvak')}"
           try
             result = HTTP.get(url)
             expect(result).toBeUndefined()
@@ -256,30 +256,30 @@ describe 'Mongo2ES', ->
           finally
             done()
       )
-      testCollection4.remove({ _id: 'jebem ja tvojho boha', query: 'jebem' })
+      testCollection4.remove({ _id: 'kvak', query: 'mnau' })
 
     it 'should not remove document from ES if transform function returns false', (done) ->
       options = optionsDefault
       options.collectionName = testCollection15
       transform = (doc) -> return false
       x = new Mongo2ES(options, transform)
-      testCollection15.insert({ _id: 'jebem ja tvojho boha alaha', query: 'jebem' })
-      doc = testCollection15.findOne({ _id: 'jebem ja tvojho boha alaha' })
+      testCollection15.insert({ _id: 'kvak', query: 'mnau' })
+      doc = testCollection15.findOne({ _id: 'kvak' })
       Mongo2ES::addToES(testCollection15, options.ES, doc)
       testCollection15.find().observe(
         removed: (oldDocument) ->
-          expect(oldDocument._id).toBe 'jebem ja tvojho boha alaha'
-          url = "#{x.options.ES.host}/#{x.options.ES.index}/#{x.options.ES.type}/#{encodeURI('jebem ja tvojho boha alaha')}"
+          expect(oldDocument._id).toBe 'kvak'
+          url = "#{x.options.ES.host}/#{x.options.ES.index}/#{x.options.ES.type}/#{encodeURI('kvak')}"
           try
             result = HTTP.get(url)
             expect(result).toBeDefined()
-            expect(result.data._id).toBe('jebem ja tvojho boha alaha')
+            expect(result.data._id).toBe('kvak')
           catch e
             expect(e).toBeUndefined()
           finally
             done()
       )
-      testCollection15.remove({ _id: 'jebem ja tvojho boha alaha', query: 'jebem' })
+      testCollection15.remove({ _id: 'kvak', query: 'mnau' })
 
   describe 'stopWatch', ->
     it 'should stop watching the collection', (done) ->
@@ -290,8 +290,8 @@ describe 'Mongo2ES', ->
       expect(watcher._stopped).toBe true
       testCollection5.find().observe(
         added: (newDocument) ->
-          expect(newDocument._id).toBe 'tvoja mamka'
-          url = "#{x.options.ES.host}/#{x.options.ES.index}/#{x.options.ES.type}/#{encodeURI('tvoja mamka')}"
+          expect(newDocument._id).toBe 'kvak'
+          url = "#{x.options.ES.host}/#{x.options.ES.index}/#{x.options.ES.type}/#{encodeURI('kvak')}"
           try
             result = HTTP.get(url)
             expect(result).toBeUndefined()
@@ -300,4 +300,4 @@ describe 'Mongo2ES', ->
           finally
             done()
       )
-      testCollection5.insert({ _id: 'tvoja mamka', query: 'jebem' })
+      testCollection5.insert({ _id: 'kvak', query: 'mnau' })
